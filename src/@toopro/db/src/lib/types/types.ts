@@ -31,7 +31,11 @@ export interface DB_Credentials {
   // static token for login
   token?: string,
   // url of the server
-  url?: string
+  url?: string,
+  // provider identifier (e.g., 'google', 'facebook')
+  provider?: string,
+  // redirect URL for authentication flow
+  redirectUrl?: string,
   // options (depend on the server type)
   options?: Record<string, any>
 }

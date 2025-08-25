@@ -1,21 +1,21 @@
 import { I_DB_EntityServiceBase } from './types/service-base.interface.js';
 import {
-  authentication,
-  AuthenticationData,
-  AuthenticationMode,
-  createDirectus,
-  createItem,
-  createItems,
-  deleteItem,
-  deleteItems,
-  readFiles,
-  readItems,
-  readMe,
-  readRoles,
-  rest,
-  UnpackList,
-  updateItem,
-  updateItems
+    authentication,
+    AuthenticationData,
+    AuthenticationMode,
+    createDirectus,
+    createItem,
+    createItems,
+    deleteItem,
+    deleteItems,
+    readFiles,
+    readItems,
+    readMe, readProviders,
+    readRoles,
+    rest,
+    UnpackList,
+    updateItem,
+    updateItems
 } from '@directus/sdk';
 import {
   DB_Credentials,
@@ -159,6 +159,18 @@ export abstract class DB_EntityServiceBase_Directus<T extends DB_EntityBase<obje
         console.error('login error2:', e, srv);
         srv.broker.upsertServer(srv.name, {isLoggedIn:IsLoginStatus.not}); //srv.isLoggedIn = IsLoginStatus.not;
       }
+    //ELSE try login with oauth provider:
+    } else if (credentials.provider) {
+        try {
+            // Attempt OAuth login with the specified provider and redirect URL
+            authData = await (srv.i as any).login(credentials.provider, {
+                redirect: credentials.redirectUrl ?? (platformIsBrowser ? (globalThis as any).location.origin : undefined)
+            });
+            srv.broker.upsertServer(srv.name, {isLoggedIn:IsLoginStatus.yes});
+        } catch (e) {
+            console.error('oauth login error:', e, srv);
+            srv.broker.upsertServer(srv.name, {isLoggedIn:IsLoginStatus.not});
+        }
     //ELSE we can't login without token or login/password:
     } else {
       console.warn('no token or login/password is set for server:', srv.name);
@@ -289,6 +301,7 @@ export abstract class DB_EntityServiceBase_Directus<T extends DB_EntityBase<obje
     switch (this.entityName) {
       case 'directus_roles': return readRoles;
       case 'directus_files': return readFiles;
+      case 'directus_providers': return readProviders;
       default: return (query:I_DB_Query) => readItems<{ [key: string]: T },any,any>(this.entityName, query);
     }
   }
