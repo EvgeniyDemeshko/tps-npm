@@ -162,10 +162,8 @@ export abstract class DB_EntityServiceBase_Directus<T extends DB_EntityBase<obje
     //ELSE try login with oauth provider:
     } else if (credentials.provider) {
         try {
-            // Attempt OAuth login with the specified provider and redirect URL
-            authData = await (srv.i as any).login(credentials.provider, {
-                redirect: credentials.redirectUrl ?? (platformIsBrowser ? (globalThis as any).location.origin : undefined)
-            });
+            // Attempt OAuth login with the specified provider
+            authData = await (srv.i as any).login({ provider: credentials.provider })
             srv.broker.upsertServer(srv.name, {isLoggedIn:IsLoginStatus.yes});
         } catch (e) {
             console.error('oauth login error:', e, srv);
