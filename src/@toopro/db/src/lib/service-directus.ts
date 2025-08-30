@@ -162,9 +162,20 @@ export abstract class DB_EntityServiceBase_Directus<T extends DB_EntityBase<obje
     //ELSE try login with oauth provider:
     } else if (credentials.provider) {
         try {
-            // Attempt OAuth login with the specified provider
-            authData = await (srv.i as any).login({ provider: credentials.provider })
-            srv.broker.upsertServer(srv.name, {isLoggedIn:IsLoginStatus.yes});
+          if (platformIsBrowser) {
+          const redirectTo = credentials.redirectUrl ?? (globalThis as any).location.origin;
+
+          srv.broker.upsertServer(srv.name, {isLoggedIn:IsLoginStatus.waiting});
+
+          const base = srv.url.replace(/\/$/, '');
+          // формируем URL для OAuth
+          const oauthUrl = `${base}/auth/oauth/${encodeURIComponent(credentials.provider)}?redirect=${encodeURIComponent(redirectTo)}`;
+          // Перенаправляем браузер на страницу авторизации
+          (globalThis as any).location.href = oauthUrl;
+          // Возвращаем 'waiting' т.к. процесс входа не завершен
+          // и продолжится после редиректа юзера на фронтенд
+          return IsLoginStatus.waiting;
+          }
         } catch (e) {
             console.error('oauth login error:', e, srv);
             srv.broker.upsertServer(srv.name, {isLoggedIn:IsLoginStatus.not});
