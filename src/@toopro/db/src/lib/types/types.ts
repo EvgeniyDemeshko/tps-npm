@@ -33,7 +33,7 @@ export interface DB_Credentials {
   // url of the server
   url?: string,
   // provider identifier (e.g., 'google', 'facebook')
-  provider?: string,
+  oauthProvider?: string,
   // redirect URL for authentication flow
   redirectUrl?: string,
   // options (depend on the server type)

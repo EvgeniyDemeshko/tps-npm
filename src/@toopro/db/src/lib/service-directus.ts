@@ -160,7 +160,7 @@ export abstract class DB_EntityServiceBase_Directus<T extends DB_EntityBase<obje
         srv.broker.upsertServer(srv.name, {isLoggedIn:IsLoginStatus.not}); //srv.isLoggedIn = IsLoginStatus.not;
       }
     //ELSE try login with oauth provider:
-    } else if (credentials.provider) {
+    } else if (credentials.oauthProvider) {
         try {
           if (platformIsBrowser) {
           const redirectTo = credentials.redirectUrl ?? (globalThis as any).location.origin;
@@ -169,7 +169,7 @@ export abstract class DB_EntityServiceBase_Directus<T extends DB_EntityBase<obje
 
           const base = srv.url.replace(/\/$/, '');
           // формируем URL для OAuth
-          const oauthUrl = `${base}/auth/oauth/${encodeURIComponent(credentials.provider)}?redirect=${encodeURIComponent(redirectTo)}`;
+          const oauthUrl = `${base}/auth/oauth/${encodeURIComponent(credentials.oauthProvider)}?redirect=${encodeURIComponent(redirectTo)}`;
           // Перенаправляем браузер на страницу авторизации
           (globalThis as any).location.href = oauthUrl;
           // Возвращаем 'waiting' т.к. процесс входа не завершен
